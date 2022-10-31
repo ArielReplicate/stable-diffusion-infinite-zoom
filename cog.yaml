@@ -1,0 +1,45 @@
+build:
+  gpu: true
+  cuda: "10.2"
+  python_version: 3.8
+  system_packages:
+    - libgl1-mesa-glx
+    - libglib2.0-0
+  python_packages:
+    - torch==1.10.1
+    - numpy==1.21.6
+    - opencv-python==4.6.0.66
+    - matplotlib==3.5.2
+    - tqdm==4.64.0
+    - pytorch-lightning==1.7.7
+    - omegaconf==2.2.3
+    - streamlit==1.14.0
+    - einops==0.5.0
+    - transformers==4.19.2
+    - torchmetrics==0.10.1
+    - kornia==0.6.0
+    - streamlit-drawable-canvas==0.8.0
+    - taming-transformers==0.0.1
+    - invisible-watermark==0.1.5
+    - diffusers==0.6.0
+    - imageio==2.22.2
+#    - torchvision==1.11.2
+#    - imageio==2.9.0
+#    - imageio-ffmpeg==0.4.2
+#    - torch-fidelity==0.3.0
+#    - scikit-image==0.19.2
+#    - albumentations==0.4.3
+#    - pudb==2019.2
+#    - opencv-python==4.1.2.30
+#    - test-tube>=0.7.5
+  run:
+    #    - pip install -e git+https://github.com/CompVis/taming-transformers.git@master#egg=taming-transformers
+    #    - pip install -e git+https://github.com/openai/CLIP.git@main#egg=clip
+    #    - pip install -e .
+    - pip install --upgrade pip
+    - git clone https://github.com/CompVis/taming-transformers.git sub_modules/taming-transformers
+    - pip3 install -e sub_modules/taming-transformers
+    - git clone https://github.com/openai/CLIP.git sub_modules/CLIP
+    - pip install -e sub_modules/CLIP
+
+predict: "predict.py:Predictor"
