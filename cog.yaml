@@ -1,12 +1,12 @@
 build:
   gpu: true
-  cuda: "10.2"
+  cuda: "11.3"
   python_version: 3.8
   system_packages:
     - libgl1-mesa-glx
     - libglib2.0-0
   python_packages:
-    - torch==1.10.1
+    - torch==1.12.1 --extra-index-url https://download.pytorch.org/whl/cu113
     - numpy==1.21.6
     - opencv-python==4.6.0.66
     - matplotlib==3.5.2
