@@ -1,5 +1,8 @@
 import argparse
+import os
 from math import log
+import subprocess
+import imageio
 
 import cv2
 import torch
@@ -14,7 +17,6 @@ from ldm.models.diffusion.plms import PLMSSampler
 
 from scripts.txt2img import check_safety, put_watermark, WatermarkEncoder
 from imwatermark import WatermarkEncoder
-import imageio
 
 wm = "StableDiffusionV1"
 wm_encoder = WatermarkEncoder()
@@ -243,14 +245,22 @@ def write_frames(frames, fname, fps=30):
     if fname.endswith('gif'):
         imageio.mimsave(fname, [Image.fromarray(frame) for frame in frames], duration=1 / fps)
     elif fname.endswith('mp4'):
-        height, width = frames[0].shape[:2]
-        fourcc = cv2.VideoWriter_fourcc(*'H264')
-        video = cv2.VideoWriter(fname, fourcc, fps, (width, height))
+        os.makedirs("tmp", exist_ok=True)
+        for i, frame in enumerate(frames):
+            cv2.imwrite(f"tmp/{str(i).zfill(5)}.png", frame)
 
-        for image in frames:
-            video.write(image[..., ::-1])
-
-        video.release()
+        cmd = [
+            "ffmpeg", "-y", "-vcodec", "png",
+            "-r", str(fps),
+            "-start_number", str(0),
+            "-i", f"tmp/%05d.png",
+            "-c:v", "libx264", "-vf", f"fps={fps}", "-pix_fmt", "yuv420p", "-crf", "17", "-preset", "veryfast", fname,
+        ]
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        if process.returncode != 0:
+            print(stderr)
+            raise RuntimeError(stderr)
     else:
         raise ValueError("Can only produce mp4 or gif files")
 
@@ -289,7 +299,7 @@ def main():
 
     frames = zoom_in(np.array(img), opt.zoom_factor, n_frames=60)
 
-    write_frames(frames, fname="infinite_zoom.mp4", fps=20)
+    write_frames(frames, fname="infinite_zoom.mp4", fps=10)
 
 
 if __name__ == "__main__":

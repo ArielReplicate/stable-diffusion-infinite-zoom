@@ -54,7 +54,7 @@ class Predictor(BasePredictor):
         output_format = str(output_format)
         ext = output_format.split(".")[-1]
         fname = f"infinit_zoom.{ext}"
-        write_frames(frames, fname=fname, fps=30)
+        write_frames(frames, fname=fname, fps=20)
 
         if ext == 'gif':
             return Output(gif=Path(fname))
@@ -62,3 +62,40 @@ class Predictor(BasePredictor):
             return Output(mp4=Path(fname))
 
 
+def write_web_mp4(frames, fps, fname):
+    os.makedirs("tmp", exist_ok=True)
+    for i, frame in enumerate(frames):
+        cv2.imwrite(f"tmp/{str(i).zfill(5)}.png", frame)
+
+    # make video
+
+    # make video
+    cmd = [
+        "ffmpeg",
+        "-y",
+        "-vcodec",
+        "png",
+        "-r",
+        str(fps),
+        "-start_number",
+        str(0),
+        "-i",
+        f"tmp/%05d.png",
+        "-c:v",
+        "libx264",
+        "-vf",
+        f"fps={fps}",
+        "-pix_fmt",
+        "yuv420p",
+        "-crf",
+        "17",
+        "-preset",
+        "veryfast",
+        fname,
+    ]
+    import subprocess
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    if process.returncode != 0:
+        print(stderr)
+        raise RuntimeError(stderr)

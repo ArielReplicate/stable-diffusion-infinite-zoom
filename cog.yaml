@@ -36,6 +36,7 @@ build:
     #    - pip install -e git+https://github.com/CompVis/taming-transformers.git@master#egg=taming-transformers
     #    - pip install -e git+https://github.com/openai/CLIP.git@main#egg=clip
     #    - pip install -e .
+    - apt update -y && apt-get install ffmpeg -y
     - pip install --upgrade pip
     - git clone https://github.com/CompVis/taming-transformers.git sub_modules/taming-transformers
     - pip3 install -e sub_modules/taming-transformers
